@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; script-src 'self';"
+    />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Be8 WaterMarker</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <!-- ===================== Cabeçalho ===================== -->
+    <header class="topbar">
+      <div class="brand">
+        <img src="../assets/mark-white.png" alt="Be8" class="brand-mark" />
+        <div class="brand-text">
+          <span class="brand-name">Be8 <strong>WaterMarker</strong></span>
+          <span class="brand-sub">Marca d'água em lote</span>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <span id="version" class="version"></span>
+      </div>
+    </header>
+
+    <!-- ===================== Corpo ===================== -->
+    <main class="layout">
+      <!-- Palco de pré-visualização -->
+      <section class="stage-wrap">
+        <div id="stage" class="stage">
+          <div id="emptyState" class="empty">
+            <div class="empty-icon">🖼️</div>
+            <h2>Comece selecionando suas fotos</h2>
+            <p>Escolha a pasta das fotos e carregue a marca d'água.<br />Arraste a marca sobre a imagem e use as alças para ajustar o tamanho.</p>
+          </div>
+
+          <div id="previewArea" class="preview-area hidden">
+            <canvas id="previewCanvas"></canvas>
+            <!-- Linhas-guia de alinhamento (snapping) -->
+            <div id="guideV" class="guide guide-v hidden"></div>
+            <div id="guideH" class="guide guide-h hidden"></div>
+            <!-- Marca d'água interativa (overlay) -->
+            <div id="wmBox" class="wm-box hidden">
+              <img id="wmImg" class="wm-img" alt="marca" />
+              <span class="wm-handle tl" data-corner="tl"></span>
+              <span class="wm-handle tr" data-corner="tr"></span>
+              <span class="wm-handle bl" data-corner="bl"></span>
+              <span class="wm-handle br" data-corner="br"></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Navegação entre fotos -->
+        <div id="navBar" class="navbar hidden">
+          <button id="prevBtn" class="nav-btn" title="Foto anterior">‹</button>
+          <span id="navLabel" class="nav-label">—</span>
+          <button id="nextBtn" class="nav-btn" title="Próxima foto">›</button>
+        </div>
+      </section>
+
+      <!-- Painel de controles -->
+      <aside class="panel">
+        <!-- Passo 1 -->
+        <div class="card">
+          <div class="card-step">1</div>
+          <div class="card-body">
+            <h3>Fotos</h3>
+            <div class="btn-row">
+              <button id="pickFolder" class="btn btn-primary">Selecionar pasta das fotos</button>
+              <button id="clearFolder" class="btn btn-sm" title="Limpar seleção">Limpar</button>
+            </div>
+            <p id="folderInfo" class="hint">Nenhuma pasta selecionada</p>
+          </div>
+        </div>
+
+        <!-- Passo 2 -->
+        <div class="card">
+          <div class="card-step">2</div>
+          <div class="card-body">
+            <h3>Marca d'água</h3>
+            <div class="btn-row">
+              <button id="pickWatermark" class="btn">Carregar marca (PNG)</button>
+              <button id="clearWatermark" class="btn btn-sm" title="Remover marca">Remover</button>
+            </div>
+            <p id="wmInfo" class="hint">Dica: use um PNG com fundo transparente</p>
+          </div>
+        </div>
+
+        <!-- Passo 3: ajustes -->
+        <div class="card">
+          <div class="card-step">3</div>
+          <div class="card-body">
+            <h3>Ajustes</h3>
+
+            <label class="field">
+              <span class="field-label">Tamanho <b id="sizeVal">25%</b></span>
+              <input id="sizeSlider" type="range" min="2" max="100" value="25" step="1" />
+            </label>
+
+            <label class="field">
+              <span class="field-label">Opacidade <b id="opacityVal">100%</b></span>
+              <input id="opacitySlider" type="range" min="5" max="100" value="100" step="1" />
+            </label>
+
+            <span class="field-label">Posição rápida</span>
+            <div class="pos-grid">
+              <button class="pos-btn" data-pos="tl" title="Superior esquerdo">↖</button>
+              <button class="pos-btn" data-pos="tc" title="Superior centro">↑</button>
+              <button class="pos-btn" data-pos="tr" title="Superior direito">↗</button>
+              <button class="pos-btn" data-pos="ml" title="Centro esquerdo">←</button>
+              <button class="pos-btn" data-pos="mc" title="Centro">•</button>
+              <button class="pos-btn" data-pos="mr" title="Centro direito">→</button>
+              <button class="pos-btn" data-pos="bl" title="Inferior esquerdo">↙</button>
+              <button class="pos-btn" data-pos="bc" title="Inferior centro">↓</button>
+              <button class="pos-btn" data-pos="br" title="Inferior direito">↘</button>
+            </div>
+            <p class="hint">Arraste a marca sobre a foto — ela encaixa nas guias (centro, bordas e terços). Segure <b>Alt</b> para mover livre.</p>
+          </div>
+        </div>
+
+        <!-- Passo 4: saída -->
+        <div class="card">
+          <div class="card-step">4</div>
+          <div class="card-body">
+            <h3>Saída</h3>
+
+            <label class="field">
+              <span class="field-label">Renomear arquivos (opcional)</span>
+              <input id="renameBase" type="text" class="text-input" placeholder="be8_watermarked" maxlength="80" />
+            </label>
+            <p class="hint">Vazio = <b>be8_watermarked - 1, 2, 3…</b> · Com texto = <b>seu texto - 1, 2, 3…</b></p>
+
+            <div class="seg" style="margin-top: 14px">
+              <button class="seg-btn active" data-fmt="jpg">JPG</button>
+              <button class="seg-btn" data-fmt="png">PNG</button>
+            </div>
+            <label class="field" id="qualityField">
+              <span class="field-label">Qualidade <b id="qualityVal">100%</b></span>
+              <input id="qualitySlider" type="range" min="50" max="100" value="100" step="1" />
+            </label>
+            <p class="hint">Resolução original 100% preservada. <b>100% = sem perda extra</b>; <b>PNG = totalmente sem perda</b> (arquivos maiores). Os originais nunca são alterados.</p>
+          </div>
+        </div>
+
+        <button id="processBtn" class="btn btn-process" disabled>Aplicar em todas e salvar</button>
+      </aside>
+    </main>
+
+    <!-- ===================== Rodapé ===================== -->
+    <footer class="footer">
+      <span>© 2026 <strong>Be8 Agência de Marketing</strong> — Todos os direitos reservados.</span>
+    </footer>
+
+    <!-- ===================== Overlay de progresso ===================== -->
+    <div id="progressOverlay" class="overlay hidden">
+      <div class="progress-card">
+        <img src="../assets/mark-white.png" alt="Be8" class="progress-mark" />
+        <h3 id="progressTitle">Processando fotos…</h3>
+        <div class="bar"><div id="barFill" class="bar-fill"></div></div>
+        <p id="progressText" class="progress-text">0 de 0</p>
+        <div id="progressDone" class="progress-done hidden">
+          <button id="openFolderBtn" class="btn btn-primary">Abrir pasta</button>
+          <button id="closeProgressBtn" class="btn">Fechar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Notificação de atualização (canto inferior) -->
+    <div id="updateToast" class="toast hidden">
+      <img src="../assets/mark-white.png" alt="Be8" class="toast-mark" />
+      <div class="toast-body">
+        <span id="toastTitle" class="toast-title">Atualização disponível</span>
+        <span id="toastText" class="toast-text">Baixando…</span>
+      </div>
+      <button id="toastAction" class="toast-btn hidden">Reiniciar</button>
+      <button id="toastClose" class="toast-close" title="Fechar">×</button>
+    </div>
+
+    <!-- Imagem fonte da marca (oculta, para medir proporção) -->
+    <img id="wmSource" class="hidden" alt="" />
+
+    <script src="renderer.js"></script>
+  </body>
+</html>

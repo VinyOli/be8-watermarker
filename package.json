@@ -1,0 +1,80 @@
+{
+  "name": "be8-watermarker",
+  "productName": "Be8 WaterMarker",
+  "version": "1.0.2",
+  "description": "Aplicador de marca d'água em lote — Be8 Agência de Marketing",
+  "author": {
+    "name": "Be8 Agência de Marketing",
+    "email": "contato@be8.com.br"
+  },
+  "license": "UNLICENSED",
+  "copyright": "© 2026 Be8 Agência de Marketing. Todos os direitos reservados.",
+  "main": "electron/main.js",
+  "scripts": {
+    "icons": "node scripts/make-icons.js",
+    "start": "electron .",
+    "dist": "npm run icons && electron-builder --win",
+    "pack": "npm run icons && electron-builder --win --dir",
+    "release": "npm run icons && electron-builder --win --publish always"
+  },
+  "dependencies": {
+    "electron-updater": "^6.8.9",
+    "heic-convert": "^2.1.0"
+  },
+  "devDependencies": {
+    "electron": "^33.2.0",
+    "electron-builder": "^25.1.8",
+    "png-to-ico": "^2.1.0",
+    "sharp": "^0.33.5"
+  },
+  "build": {
+    "appId": "com.be8.watermarker",
+    "productName": "Be8 WaterMarker",
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "VinyOli",
+        "repo": "be8-watermarker"
+      }
+    ],
+    "copyright": "© 2026 Be8 Agência de Marketing. Todos os direitos reservados.",
+    "directories": {
+      "output": "dist",
+      "buildResources": "assets"
+    },
+    "files": [
+      "electron/**/*",
+      "src/**/*",
+      "assets/icon.ico",
+      "assets/icon.png",
+      "assets/logo-white.png",
+      "assets/mark-white.png",
+      "node_modules/**/*",
+      "!node_modules/sharp/**/*",
+      "!node_modules/png-to-ico/**/*"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "assets/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Be8 WaterMarker",
+      "installerIcon": "assets/icon.ico",
+      "uninstallerIcon": "assets/icon.ico",
+      "installerHeaderIcon": "assets/icon.ico",
+      "artifactName": "Be8-WaterMarker-Setup-${version}.${ext}"
+    }
+  }
+}
