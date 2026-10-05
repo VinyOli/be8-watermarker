@@ -34,7 +34,8 @@
       {
         "provider": "github",
         "owner": "VinyOli",
-        "repo": "be8-watermarker"
+        "repo": "be8-watermarker",
+        "releaseType": "release"
       }
     ],
     "copyright": "© 2026 Be8 Agência de Marketing. Todos os direitos reservados.",

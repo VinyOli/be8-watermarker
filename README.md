@@ -25,13 +25,35 @@ npm run icons      # gera assets/icon.ico a partir de assets/icon-source.png
 npm run dist       # gera o instalador .exe em dist/
 ```
 
-## Gerar o instalador
+## Gerar o instalador (sem publicar)
 
 ```bash
 npm run dist
 ```
 
-O instalador é criado em `dist/Be8-WaterMarker-Setup-1.0.0.exe`. É só enviar esse arquivo para o cliente — ele instala como qualquer programa do Windows (com atalho na área de trabalho e no menu Iniciar).
+O instalador é criado em `dist/Be8-WaterMarker-Setup-<versao>.exe`. É só enviar esse arquivo para o cliente — ele instala como qualquer programa do Windows (com atalho na área de trabalho e no menu Iniciar).
+
+## Publicar uma atualização (auto-update)
+
+O app se atualiza sozinho via **GitHub Releases** (`electron-updater`). Fluxo para lançar uma nova versão:
+
+1. Faça as alterações no código.
+2. **Suba o número da versão** em `package.json` (ex.: `1.0.2` → `1.0.3`).
+3. Rode:
+
+```bash
+npm run release
+```
+
+Isso compila e publica o instalador + metadados no repositório `VinyOli/be8-watermarker` (Releases). Precisa de um token do GitHub no ambiente — com o GitHub CLI logado, use:
+
+```bash
+GH_TOKEN="$(gh auth token)" npm run release
+```
+
+Quem já tem o programa instalado recebe automaticamente uma **notificação no canto inferior** ("Atualização disponível"), o download acontece em segundo plano e, ao clicar em **Reiniciar**, o app atualiza sozinho. Também atualiza no próximo fechamento do programa.
+
+> Importante: cada release precisa de um **número de versão maior** que o anterior, senão o app não reconhece como atualização.
 
 ## Trocar a identidade visual
 
